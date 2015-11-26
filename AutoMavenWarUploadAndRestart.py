@@ -74,6 +74,7 @@ def scpWar():
 def getCommands():
     commands = []
     commands.append("chmod 777 /data/www/wms-web.war")
+    commands.append("rm -rf /data/www/wms*bank")
     commands.append("mv /data/www/wms /data/www/wms" + getDateTime() + "bank")
     commands.append("mkdir /data/www/wms")
     commands.append("mv /data/www/wms-web.war /data/www/wms")
@@ -143,13 +144,15 @@ def start():
         return
     if execute(user, ip, password, str(commands[4])) == 1:
         return
-    time.sleep(2)
     if execute(user, ip, password, str(commands[5])) == 1:
         return
+    time.sleep(2)
     if execute(user, ip, password, str(commands[6])) == 1:
         return
-    time.sleep(5)
     if execute(user, ip, password, str(commands[7])) == 1:
+        return
+        time.sleep(5)
+    if execute(user, ip, password, str(commands[8])) == 1:
         return
     print "all deploy and restart wms finish!"
 

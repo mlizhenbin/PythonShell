@@ -150,5 +150,6 @@ def start():
     print "all deploy and restart wms finish!"
 
 
-# 执行脚本
-start()
+if __name__ == '__main__':
+    # 执行脚本
+    start()

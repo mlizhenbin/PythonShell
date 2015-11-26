@@ -7,15 +7,15 @@ from ftplib import FTP
 from time import strftime, localtime
 
 
+# 配置
 class UploadConfig():
-    def __init__(self, host, userName, passWord, remotePath, localPath):
-        self.localPath = localPath
-        self.remotePath = remotePath
+    def __init__(self, host, userName, passWord):
         self.host = host
         self.userName = userName
         self.passWord = passWord
 
 
+# ftp
 class Ftp(object):
     def __init__(self, host, user, passwd, **kwargs):
         self.ftp = FTP(host=host, user=user, passwd=passwd, **kwargs)
@@ -44,6 +44,7 @@ class Ftp(object):
         self.ftp.quit()
 
 
+# 生成临时文件
 class HashWar():
     def __init__(self, filename, filesize, maxsize):
         self.filename = filename
@@ -72,55 +73,72 @@ class HashWar():
         return crc
 
 
-def createUploadFile():
-    tempPath = "/Users/a11/PycharmProjects/PythonShell/"
-    version = "V3.5.2."
-    os.system("/Users/a11/PycharmProjects/PythonShell/shell/PackageUpload.sh")
+# 本地执行命令
+def getPorjectPath():
+    return "/Users/a11/PycharmProjects/PythonShell/";
+
+
+# 版本
+def getWarVersion():
+    return "V3.5.2."
+
+
+# shell path
+def getShell():
+    return "/Users/a11/PycharmProjects/PythonShell/shell/PackageUpload.sh"
+
+
+# 执行上传
+def execute():
+    projectPath = getPorjectPath()
+    version = getWarVersion()
+    os.system(getShell())
     dateStr = strftime('%Y%m%d%H%M%S', localtime())
-    newWarName = tempPath + "wms" + version + dateStr + ".war"
+    totalWarFilePath = projectPath + "wms" + version + dateStr + ".war"
     shotWarName = "wms" + version + dateStr + ".war"
-    os.system("mv " + tempPath + "wms-web.war " + newWarName)
+    os.system("mv " + projectPath + "wms-web.war " + totalWarFilePath)
 
     blockSize = 1024 * 1024
-    size = os.path.getsize(newWarName)
-    date = strftime('%Y/%m/%d %H:%M:%S', localtime(os.path.getmtime(newWarName)))
-    war = HashWar(newWarName, size, blockSize)
+    size = os.path.getsize(totalWarFilePath)
+    date = strftime('%Y/%m/%d %H:%M:%S', localtime(os.path.getmtime(totalWarFilePath)))
+    war = HashWar(totalWarFilePath, size, blockSize)
 
-    md5 = war.hashValue(hashlib.md5())  # 计算 MD5 值
-    sha1 = war.hashValue(hashlib.sha1())  # 计算 SHA1 值
-    crc32 = war.crc32Value()  # CRC32
+    # 计算 MD5 值
+    md5 = war.hashValue(hashlib.md5())
+    # 计算 SHA1 值
+    sha1 = war.hashValue(hashlib.sha1())
+    # CRC32
+    crc32 = war.crc32Value()
 
     outs = '';
-    outs += 'File path: ' + newWarName + '\n'
+    outs += 'File path: ' + totalWarFilePath + '\n'
     outs += 'Size: ' + str(size) + ' bytes\n'
     outs += 'Date modified: ' + date + '\n'
     outs += 'MD5: ' + md5.upper() + '\n'
     outs += 'SHA1: ' + sha1.upper() + '\n'
     outs += 'CRC32: ' + str((crc32 & 0xffffffff)) + '\n\n\n'
 
-    print 'File path: %s' % newWarName
-    print 'Size: %s bytes' % size
-    print 'Date modified: %s' % date
-    # 处理结果使其中的字母大写
-    print 'MD5: %s' % md5.upper()
-    print 'SHA1: %s' % sha1.upper()
-    print 'CRC32: %X' % (crc32 & 0xffffffff)
-
-    newMD5Name = tempPath + "wms" + version + dateStr + ".MD5"
+    totalMD5FilePath = projectPath + "wms" + version + dateStr + ".MD5"
     shotMD5Name = "wms" + version + dateStr + ".MD5"
-    fo = open(newMD5Name, "wb")
+    fo = open(totalMD5FilePath, "wb")
     fo.write(outs);
     fo.close()
 
-    os.system("chmod 777 " +newWarName)
-    os.system("chmod 777 " +newMD5Name)
+    os.system("chmod 777 " + totalWarFilePath)
+    os.system("chmod 777 " + totalMD5FilePath)
 
-    config = UploadConfig("172.21.106.251", "dev", "dev2014@plus", "/wmstemp", "test1112.vm")
+    config = UploadConfig("172.21.106.251", "dev", "dev2014@plus")
     ftp = Ftp(config.host, config.userName, config.passWord)
+    print "uploading %s..." % shotMD5Name
     ftp.upload(shotMD5Name, "/wmstemp")
+    print "uploading %s..." % shotWarName
     ftp.upload(shotWarName, "/wmstemp")
     ftp.quit()
 
+    os.system("rm -rf " + totalWarFilePath)
+    os.system("rm -rf " + totalMD5FilePath)
+    print 'ftp upload files finish.'
+
 
 if __name__ == '__main__':
-    createUploadFile()
+    execute()

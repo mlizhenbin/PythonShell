@@ -6,17 +6,10 @@ import time
 from time import strftime, localtime
 import pexpect
 
-year = strftime("%Y", localtime())
-mon = strftime("%m", localtime())
-day = strftime("%d", localtime())
-hour = strftime("%H", localtime())
-min = strftime("%M", localtime())
-sec = strftime("%S", localtime())
-
 
 # 格式化时间
 def getDateTime():
-    return year + mon + day + hour + min + sec
+    return strftime('%Y%m%d%H%M%S', localtime())
 
 
 # SSH机器账户名称

@@ -2,13 +2,12 @@
 # -*- coding: UTF-8 -*-
 import os
 
+webCmd = 'grep \"#WebLog#\" /log/wms/wms%s.log|awk -F \" \" \'{print $8\" \"$7}\'|awk -F \"ms \" \'{print $1\" \"$2}\'|awk \'{s[$2] += $1; b[$2]++;max[$2]=max[$2]>$1?max[$2]:$1}END{ for(i in s){  print max[i], s[i]/b[i], b[i], i} }\'|awk \'%s {print $1\"ms \"int($2)\"ms \"$3\" \"$4}%s\'|sort -nr'
+
 
 # base linux server business system logs analysis class
 class Analysis():
-    # linux shell command
     __command = ''
-
-    # create file path
     __filePath = ''
 
     def __index__(self):
@@ -21,13 +20,12 @@ class Analysis():
         return self.__command
 
     def setFilePath(self, filePath):
-        self.filePath = filePath
+        self.__filePath = filePath
 
     def getFilePath(self):
-        return self.filePath
+        return self.__filePath
 
     def execute(self):
-        # TODO execute linux shell
         return ""
 
     def dowload(self):
@@ -37,6 +35,8 @@ class Analysis():
 # web request and response url profile Analysis
 class WebProfileAnalysis(Analysis):
     __timeLimit = ''
+    __timeLimitEnd = '}'
+    __scan = ''
 
     def __init__(self):
         pass
@@ -47,13 +47,44 @@ class WebProfileAnalysis(Analysis):
     def getTimeLimit(self):
         return self.__timeLimit
 
-    def write(self, command):
+    def setScan(self, scan):
+        self.__scan = scan
+
+    def getScan(self):
+        return self.__scan
+
+    def execute(self):
         try:
-            profile = open(self.filePath, "wb")
-            profile.write(self.getProfileLog());
-            profile.close()
+            command = self.getCommand()
+            limit = '{if($1>%s)' % self.getTimeLimit()
+            newCmd = ''
+            if self.getTimeLimit() != None:
+                newCmd = command % (self.getScan(), limit, self.__timeLimitEnd)
+            else:
+                newCmd = command % (self.getScan(), "", "")
+            print newCmd
+            popen = os.popen(newCmd)
+            return popen.read()
         except:
-            print 'Analysis Web Profile Error...'
+            print 'Analysis Web execute linux command Error...'
+            return None
+
+    def analysis(self):
+        try:
+            execute = self.execute()
+            print execute
+            path = self.getFilePath()
+            profile = open(path, "wb")
+            profile.write(execute);
+            profile.close()
+
+            # call sz upload file
+            os.system("sz %s" % (self.getFilePath()))
+            os.system("rm -rf %s" % (self.getFilePath()))
+
+        except IOError, e:
+            print 'Analysis Web write file Error...'
+            print e.args
             return None
 
 
@@ -83,6 +114,9 @@ class DaoProfileAnalysis(Analysis):
 
 # start
 if __name__ == '__main__':
-    profile = WebProfileAnalysis()
-    profile.setCommand("")
-    profile.setFilePath("")
+    webProfile = WebProfileAnalysis()
+    webProfile.setCommand(webCmd)
+    webProfile.setTimeLimit("99")
+    webProfile.setScan("*")
+    webProfile.setFilePath("WebProfile.txt")
+    webProfile.analysis()

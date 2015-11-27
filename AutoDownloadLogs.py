@@ -177,8 +177,8 @@ def callWebProfileAnalysis():
 def callErrorAnalysis():
     analysis = ErrorAnalysis()
     analysis.setCommand(errorCmd)
-    analysis.setScan("*")
-    analysis.setOutline("20")
+    analysis.setScan("")
+    analysis.setOutline("5")
     analysis.setSearch("\"Exception\"")
     filters = []
     filters.append('|grep -v \"SalesOrderDistributeException\"')

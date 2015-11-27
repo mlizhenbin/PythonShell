@@ -3,12 +3,14 @@
 import os
 
 webCmd = 'grep \"#WebLog#\" /log/wms/wms%s.log|awk -F \" \" \'{print $8\" \"$7}\'|awk -F \"ms \" \'{print $1\" \"$2}\'|awk \'{s[$2] += $1; b[$2]++;max[$2]=max[$2]>$1?max[$2]:$1}END{ for(i in s){  print max[i], s[i]/b[i], b[i], i} }\'|awk \'%s {print $1\"ms \"int($2)\"ms \"$3\" \"$4}%s\'|sort -nr'
+errorCmd = 'grep %s %s /log/wms/wms%s.log %s |grep %s %s %s'
 
 
 # base linux server business system logs analysis class
 class Analysis():
     __command = ''
     __filePath = ''
+    __scan = ''
 
     def __index__(self):
         pass
@@ -25,18 +27,41 @@ class Analysis():
     def getFilePath(self):
         return self.__filePath
 
-    def execute(self):
-        return ""
+    def setScan(self, scan):
+        self.__scan = scan
 
-    def dowload(self):
-        os.system("sz %s" % self.filePath)
+    def getScan(self):
+        return self.__scan
+
+    def execute(self):
+        try:
+            popen = os.popen(self.getCommand())
+            return popen.read()
+        except:
+            print 'Analysis execute error...'
+
+    def analysis(self):
+        try:
+            execute = self.execute()
+            print execute
+            path = self.getFilePath()
+            profile = open(path, "wb")
+            profile.write(execute);
+            profile.close()
+
+            # call sz upload file
+            os.system("sz %s" % (self.getFilePath()))
+            os.system("rm -rf %s" % (self.getFilePath()))
+        except IOError, e:
+            print 'Analysis Web write file Error...'
+            print e.args
+            return None
 
 
 # web request and response url profile Analysis
 class WebProfileAnalysis(Analysis):
     __timeLimit = ''
     __timeLimitEnd = '}'
-    __scan = ''
 
     def __init__(self):
         pass
@@ -46,12 +71,6 @@ class WebProfileAnalysis(Analysis):
 
     def getTimeLimit(self):
         return self.__timeLimit
-
-    def setScan(self, scan):
-        self.__scan = scan
-
-    def getScan(self):
-        return self.__scan
 
     def execute(self):
         try:
@@ -69,29 +88,63 @@ class WebProfileAnalysis(Analysis):
             print 'Analysis Web execute linux command Error...'
             return None
 
-    def analysis(self):
-        try:
-            execute = self.execute()
-            print execute
-            path = self.getFilePath()
-            profile = open(path, "wb")
-            profile.write(execute);
-            profile.close()
-
-            # call sz upload file
-            os.system("sz %s" % (self.getFilePath()))
-            os.system("rm -rf %s" % (self.getFilePath()))
-
-        except IOError, e:
-            print 'Analysis Web write file Error...'
-            print e.args
-            return None
-
 
 # business log errors and exception Analysis
-class ExceptionAnalysis(Analysis):
+class ErrorAnalysis(Analysis):
+    __filterErrors = []
+    __outConsoleColor = '--color=always'
+    __outline = '10'
+    __search = ''
+    __suffix = ''
+
     def __init__(self):
         pass
+
+    def setFilterErrors(self, filterErrors):
+        self.__filterErrors = filterErrors
+
+    def getFilterErrors(self):
+        return self.__filterErrors
+
+    def setOutline(self, outline):
+        self.__outline = outline
+
+    def getOutline(self):
+        return self.__outline
+
+    def setSearch(self, search):
+        self.__search = search
+
+    def getSearch(self):
+        return self.__search
+
+    def setSuffix(self, suffix):
+        self.__suffix = suffix
+
+    def getSuffix(self):
+        return self.__suffix
+
+    def setConsoleColor(self, consoleColor):
+        self.__outConsoleColor = consoleColor
+
+    def getConsoleColor(self):
+        return self.__outConsoleColor
+
+    def execute(self):
+        try:
+            errors = self.getFilterErrors()
+            filterStr = ''
+            if errors != None and len(errors) > 0:
+                for error in errors:
+                    filterStr += error
+            command = self.getCommand() % (
+                self.getOutline(), self.getSearch(), self.getScan(), filterStr, self.getOutline(), self.getSearch(),
+                self.getConsoleColor())
+            print command
+            popen = os.popen(command)
+            return popen.read()
+        except:
+            print 'Analysis Exception linux command Error...'
 
 
 # task job profile Analysis
@@ -112,11 +165,29 @@ class DaoProfileAnalysis(Analysis):
         pass
 
 
+def callWebProfileAnalysis():
+    analysis = WebProfileAnalysis()
+    analysis.setCommand(webCmd)
+    analysis.setTimeLimit("99")
+    analysis.setScan("*")
+    analysis.setFilePath("analysis.txt")
+    analysis.analysis()
+
+
+def callErrorAnalysis():
+    analysis = ErrorAnalysis()
+    analysis.setCommand(errorCmd)
+    analysis.setScan("*")
+    analysis.setOutline("20")
+    analysis.setSearch("\"Exception\"")
+    filters = []
+    filters.append('|grep -v \"SalesOrderDistributeException\"')
+    analysis.setFilterErrors(filters)
+    analysis.setFilePath("error.txt")
+    analysis.analysis()
+
+
 # start
 if __name__ == '__main__':
-    webProfile = WebProfileAnalysis()
-    webProfile.setCommand(webCmd)
-    webProfile.setTimeLimit("99")
-    webProfile.setScan("*")
-    webProfile.setFilePath("WebProfile.txt")
-    webProfile.analysis()
+    callWebProfileAnalysis()
+    callErrorAnalysis()

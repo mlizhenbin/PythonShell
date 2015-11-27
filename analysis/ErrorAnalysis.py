@@ -1,12 +1,12 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-# business log errors and exception Analysis
 import os
 
 from analysis.Analysis import Analysis
 
 
+# business log errors and exception Analysis
 class ErrorAnalysis(Analysis):
     __filterErrors = []
     __outConsoleColor = '--color=always'

@@ -130,9 +130,9 @@ def execute():
     config = UploadConfig("172.21.106.251", "dev", "dev2014@plus")
     ftp = Ftp(config.host, config.userName, config.passWord)
     print "uploading %s..." % shotMD5Name
-    ftp.upload(shotMD5Name, "/wmstemp")
+    ftp.upload(shotMD5Name, "/wms")
     print "uploading %s..." % shotWarName
-    ftp.upload(shotWarName, "/wmstemp")
+    ftp.upload(shotWarName, "/wms")
     ftp.quit()
 
     os.system("rm -rf " + totalWarFilePath)

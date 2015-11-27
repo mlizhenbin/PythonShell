@@ -170,7 +170,7 @@ def callWebProfileAnalysis():
     analysis.setCommand(webCmd)
     analysis.setTimeLimit("99")
     analysis.setScan("*")
-    analysis.setFilePath("analysis.txt")
+    analysis.setFilePath("web.txt")
     analysis.analysis()
 
 

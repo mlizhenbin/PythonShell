@@ -3,7 +3,7 @@
 import os
 
 webCmd = 'grep \"#WebLog#\" /log/wms/wms%s.log|awk -F \" \" \'{print $8\" \"$7}\'|awk -F \"ms \" \'{print $1\" \"$2}\'|awk \'{s[$2] += $1; b[$2]++;max[$2]=max[$2]>$1?max[$2]:$1}END{ for(i in s){  print max[i], s[i]/b[i], b[i], i} }\'|awk \'%s {print $1\"ms \"int($2)\"ms \"$3\" \"$4}%s\'|sort -nr'
-errorCmd = 'grep %s %s /log/wms/wms%s.log %s |grep %s %s %s'
+errorCmd = 'grep -%s %s /log/wms/wms%s.log%s|grep -%s %s %s'
 
 
 # base linux server business system logs analysis class

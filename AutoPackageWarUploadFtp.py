@@ -92,7 +92,8 @@ def getShell():
 def execute():
     projectPath = getPorjectPath()
     version = getWarVersion()
-    os.system(getShell())
+    print 'maven clean install...'
+    os.popen(getShell())
     dateStr = strftime('%Y%m%d%H%M', localtime())
     totalWarFilePath = projectPath + "wms" + version + dateStr + ".war"
     shotWarName = "wms" + version + dateStr + ".war"

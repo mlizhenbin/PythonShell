@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
+import fcntl
 import os
+import socket
+import struct
 
 
 # base linux server business system logs analysis class
@@ -43,13 +46,18 @@ class Analysis():
             print command
             popen = os.popen(command)
             return popen.read()
-        except:
+        except IOError, e:
             print 'Analysis execute error...'
+            print e
+            return None
 
     def analysis(self):
         try:
             execute = self.execute()
             path = self.getFilePath()
+            if path == None or execute == None or execute == '':
+                return
+
             profile = open(path, "wb")
             profile.write(execute);
             profile.close()
@@ -59,7 +67,7 @@ class Analysis():
             os.system("rm -rf %s" % (self.getFilePath()))
         except IOError, e:
             print 'Analysis Web write file Error...'
-            print e.args
+            print e
             return None
 
 
@@ -152,16 +160,6 @@ class WebProfileAnalysis(Analysis):
             return None
 
 
-# define execute shells
-def callWebProfileAnalysis(commands):
-    analysis = WebProfileAnalysis()
-    analysis.setCommand(commands.get("webCmd"))
-    analysis.setTimeLimit("99")
-    analysis.setScan("*")
-    analysis.setFilePath("web.txt")
-    analysis.analysis()
-
-
 # init web
 def getCommands():
     cmd = {}
@@ -171,12 +169,22 @@ def getCommands():
     cmd[
         'jobCmd'] = 'grep \"success: costTime\" /log/wms/wms%s.log|awk -F \"]\" \'{print $2}\'|awk -F \".\" \'{print $11\".\"$12}\'|awk -F \" \" \'{print $3\" \"$1}\'|awk -F \"=\" \'{print $2}\'|awk -F \"ms \" \'{print $1\" \"$2}\'|awk \'{s[$2] += $1; b[$2]++;max[$2]=max[$2]>$1?max[$2]:$1}END{ for(i in s){  print max[i], s[i]/b[i], b[i], i} }\'|awk -F \" \" \'{print $1\"ms \"int($2)\"ms \"$3\" \"$4}\'|sort -nr'
     cmd[
-        'spiCmd'] = 'grep \"#ConsumerLog#\" /log/wms/wms.log|awk -F \" \" \'{print $8\" \"$10}\'|awk -F \"ms \" \'{print $1}\'|awk -F \" \" \'{print $2\" \"$1}\'|awk \'{s[$2] += $1; b[$2]++;max[$2]=max[$2]>$1?max[$2]:$1}END{ for(i in s){  print max[i], s[i]/b[i], b[i], i} }\'|awk -F \" \" \'{print $1\" \"int($2)\"ms \"$3\" \"$4}\'|sort -nr'
+        'spiCmd'] = 'grep \"#ConsumerLog#\" /log/wms/wms%s.log|awk -F \" \" \'{print $8\" \"$10}\'|awk -F \"ms \" \'{print $1}\'|awk -F \" \" \'{print $2\" \"$1}\'|awk \'{s[$2] += $1; b[$2]++;max[$2]=max[$2]>$1?max[$2]:$1}END{ for(i in s){  print max[i], s[i]/b[i], b[i], i} }\'|awk -F \" \" \'{print $1\" \"int($2)\"ms \"$3\" \"$4}\'|sort -nr'
     return cmd
 
 
+# define execute shells
+def callWebProfileAnalysis(commands, ip):
+    analysis = WebProfileAnalysis()
+    analysis.setCommand(commands.get("webCmd"))
+    analysis.setTimeLimit("99")
+    analysis.setScan("*")
+    analysis.setFilePath("web_%s.txt" % (ip))
+    analysis.analysis()
+
+
 # init error
-def callErrorAnalysis(commands):
+def callErrorAnalysis(commands, ip):
     analysis = ErrorAnalysis()
     analysis.setCommand(commands.get("errorCmd"))
     analysis.setScan("")
@@ -185,31 +193,59 @@ def callErrorAnalysis(commands):
     filters = []
     filters.append('|grep -v \"SalesOrderDistributeException\"')
     analysis.setFilterErrors(filters)
-    analysis.setFilePath("error.txt")
+    analysis.setFilePath("error_%s.txt" % (ip))
     analysis.analysis()
 
 
 # job Analysis
-def callJobAnalysis(commands):
+def callJobAnalysis(commands, ip):
     analysis = Analysis()
     analysis.setCommand(commands.get("jobCmd"))
     analysis.setScan("*")
-    analysis.setFilePath("job.txt")
+    analysis.setFilePath("job_%s.txt" % (ip))
     analysis.analysis()
 
 
 # spi Analysis
-def callSpiAnalysis(commands):
+def callSpiAnalysis(commands, ip):
     analysis = Analysis()
     analysis.setCommand(commands.get("spiCmd"))
     analysis.setScan("*")
-    analysis.setFilePath("spi.txt")
+    analysis.setFilePath("spi_%s.txt" % (ip))
     analysis.analysis()
+
+
+# 计算IP地址
+def handleAddress(ifName):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(
+        s.fileno(),
+        0x8915,
+        struct.pack('256s', ifName[:15])
+    )[20:24])
+
+
+# 获取IP地址
+def getIp():
+    ip = None
+    try:
+        ip = handleAddress("eth0")
+    except:
+        try:
+            ip = handleAddress("em2")
+        except:
+            ip = socket.gethostbyname(socket.gethostname())
+
+    if ip == None:
+        ip = '127.0.0.1'
+    return ip
 
 
 # start
 if __name__ == '__main__':
+    ip = getIp()
     commands = getCommands()
-    callWebProfileAnalysis(commands)
-    callErrorAnalysis(commands)
-    callJobAnalysis(commands)
+    callWebProfileAnalysis(commands, ip)
+    callErrorAnalysis(commands, ip)
+    callJobAnalysis(commands, ip)
+    callSpiAnalysis(commands, ip)

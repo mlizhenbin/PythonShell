@@ -4,14 +4,18 @@ import fcntl
 import os
 import socket
 import struct
-
-
 # base linux server business system logs analysis class
+import pexpect
+
+
 class Analysis():
     __command = ''
     __filePath = ''
     __scan = ''
     __outConsole = None
+    __ip = '172.21.107.124'
+    __user = 'root'
+    __passWord = 'angool'
 
     def __index__(self):
         pass
@@ -40,12 +44,39 @@ class Analysis():
     def getOutConsole(self):
         return self.__outConsole
 
+    # 远程登录虚拟机
+    def sshRemote(shelf, cmd):
+        user = shelf.__user
+        ip = shelf.__ip
+        password = shelf.__passWord
+        ssh = pexpect.spawn('ssh %s@%s "%s"' % (user, ip, cmd))
+        try:
+            i = ssh.expect(['password:', 'continue connecting (yes/no)?'], timeout=10)
+            if i == 0:
+                ssh.sendline(password)
+            elif i == 1:
+                ssh.sendline('yes\n')
+                ssh.expect('password: ')
+                ssh.sendline(password)
+            ssh.sendline(cmd)
+            read = ssh.read()
+            if shelf.__outConsole != None:
+                print read
+            return read
+        except pexpect.EOF:
+            print "EOF"
+            ssh.close()
+            return 1
+        except pexpect.TIMEOUT:
+            print "TIMEOUT"
+            ssh.close()
+            return 1
+
     def execute(self):
         try:
             command = self.getCommand() % (self.getScan())
             print command
-            popen = os.popen(command)
-            return popen.read()
+            return self.sshRemote(command)
         except IOError, e:
             print 'Analysis execute error...'
             print e
@@ -61,10 +92,6 @@ class Analysis():
             profile = open(path, "wb")
             profile.write(execute);
             profile.close()
-
-            # call sz upload file
-            os.system("sz %s" % (self.getFilePath()))
-            os.system("rm -rf %s" % (self.getFilePath()))
         except IOError, e:
             print 'Analysis Web write file Error...'
             print e
@@ -123,8 +150,7 @@ class ErrorAnalysis(Analysis):
                 self.getOutline(), self.getSearch(), self.getScan(), filterStr, self.getOutline(), self.getSearch(),
                 self.getConsoleColor())
             print command
-            popen = os.popen(command)
-            return popen.read()
+            return self.sshRemote(command)
         except:
             print 'Analysis Exception linux command Error...'
 
@@ -153,8 +179,7 @@ class WebProfileAnalysis(Analysis):
             else:
                 newCmd = command % (self.getScan(), "", "")
             print newCmd
-            popen = os.popen(newCmd)
-            return popen.read()
+            return self.sshRemote(newCmd)
         except:
             print 'Analysis Web execute linux command Error...'
             return None

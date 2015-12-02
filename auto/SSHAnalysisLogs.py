@@ -1,13 +1,13 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 import fcntl
-import os
 import socket
 import struct
-# base linux server business system logs analysis class
+
 import pexpect
 
 
+# base linux server business system logs analysis class
 class Analysis():
     __command = ''
     __filePath = ''

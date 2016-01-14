@@ -26,6 +26,8 @@ def doTag():
 
         branch_version = os.popen("git branch -v")
         readStr = branch_version.read()
+        print readStr
+
         reads = readStr.split("\n")
         for read in reads:
             if "*" in read:

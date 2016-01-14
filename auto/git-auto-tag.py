@@ -24,6 +24,13 @@ def doTag():
         os.popen("git push")
         print 'git pull finish.'
 
+        branch_version = os.popen("git branch -v")
+        readStr = branch_version.read()
+        reads = readStr.split("\n")
+        for read in reads:
+            if "*" in read:
+                print "current git branch: ", read
+
         tag = initTag()
         cmd = "git tag -a " + tag + " -m " + "\"" + tag + "\""
         os.system(cmd)

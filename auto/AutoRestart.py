@@ -59,6 +59,7 @@ def stopServer(pids):
 
 def startServer():
     subprocess.Popen("cd /opt/tomcat-wms-8580/bin && ./startup.sh", shell=True)
+    time.sleep(1)
     os.system("tail -200f /log/wms/wms.log")
 
 

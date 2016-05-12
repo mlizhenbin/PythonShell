@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-cd ~/Oneplus/wms
+cd ~/lzbruby/canvas
 mvn clean install

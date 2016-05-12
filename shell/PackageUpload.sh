@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd ~/Oneplus/wms
+cd ~/lzbruby/canvas
 mvn clean install
-cd /Users/a11/Oneplus/wms/wms-web/target
-cp wms-web.war /Users/a11/PycharmProjects/PythonShell
+cd /Users/a11/lzbruby/canvas/canvas-web/target
+cp canvas-web.war /Users/a11/PycharmProjects/PythonShell

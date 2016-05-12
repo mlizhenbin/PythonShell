@@ -7,7 +7,7 @@ import subprocess
 
 def getPid():
     try:
-        pidMessage = os.popen("ps aux|grep wms|sort -n")
+        pidMessage = os.popen("ps aux|grep canvas|sort -n")
         resultStr = pidMessage.read()
         print resultStr
 
@@ -16,13 +16,13 @@ def getPid():
             return None
 
         pids = []
-        for wmsPs in split:
-            split_wms = wmsPs.split(" ")
-            if len(split_wms) <= 0:
+        for canvasPs in split:
+            split_canvas = canvasPs.split(" ")
+            if len(split_canvas) <= 0:
                 continue
 
             split_bank = []
-            for split_wm in split_wms:
+            for split_wm in split_canvas:
                 if split_wm != '':
                     split_bank.append(split_wm)
 
@@ -58,9 +58,9 @@ def stopServer(pids):
 
 
 def startServer():
-    subprocess.Popen("cd /opt/tomcat-wms-8580/bin && ./startup.sh", shell=True)
+    subprocess.Popen("cd /opt/tomcat-canvas-8580/bin && ./startup.sh", shell=True)
     time.sleep(1)
-    os.system("tail -200f /log/wms/wms.log")
+    os.system("tail -200f /log/canvas/canvas.log")
 
 
 if __name__ == '__main__':

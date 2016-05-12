@@ -5,8 +5,8 @@ __author__ = 'Zhenbin.Li'
 import os
 from time import strftime, localtime
 
-# WMS版本号
-TAG_VERSION = 'wmsV3.6.0.';
+# canvas版本号
+TAG_VERSION = 'canvasV3.6.0.';
 
 
 # 初始化git tag文件名称

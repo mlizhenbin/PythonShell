@@ -191,12 +191,12 @@ class AnalysisCommand():
     def __getCommands(self):
         cmd = {}
         cmd[
-            'webCmd'] = 'grep \"#WebLog#\" /log/wms/wms%s.log|awk -F \" \" \'{print $8\" \"$7}\'|awk -F \"ms \" \'{print $1\" \"$2}\'|awk \'{s[$2] += $1; b[$2]++;max[$2]=max[$2]>$1?max[$2]:$1}END{ for(i in s){  print max[i], s[i]/b[i], b[i], i} }\'|awk \'%s {print $1\"ms \"int($2)\"ms \"$3\" \"$4}%s\'|sort -nr'
-        cmd['errorCmd'] = 'grep -%s %s /log/wms/wms%s.log%s|grep -%s %s %s'
+            'webCmd'] = 'grep \"#WebLog#\" /log/canvas/canvas%s.log|awk -F \" \" \'{print $8\" \"$7}\'|awk -F \"ms \" \'{print $1\" \"$2}\'|awk \'{s[$2] += $1; b[$2]++;max[$2]=max[$2]>$1?max[$2]:$1}END{ for(i in s){  print max[i], s[i]/b[i], b[i], i} }\'|awk \'%s {print $1\"ms \"int($2)\"ms \"$3\" \"$4}%s\'|sort -nr'
+        cmd['errorCmd'] = 'grep -%s %s /log/canvas/canvas%s.log%s|grep -%s %s %s'
         cmd[
-            'jobCmd'] = 'grep \"success: costTime\" /log/wms/wms%s.log|awk -F \"]\" \'{print $2}\'|awk -F \".\" \'{print $11\".\"$12}\'|awk -F \" \" \'{print $3\" \"$1}\'|awk -F \"=\" \'{print $2}\'|awk -F \"ms \" \'{print $1\" \"$2}\'|awk \'{s[$2] += $1; b[$2]++;max[$2]=max[$2]>$1?max[$2]:$1}END{ for(i in s){  print max[i], s[i]/b[i], b[i], i} }\'|awk -F \" \" \'{print $1\"ms \"int($2)\"ms \"$3\" \"$4}\'|sort -nr'
+            'jobCmd'] = 'grep \"success: costTime\" /log/canvas/canvas%s.log|awk -F \"]\" \'{print $2}\'|awk -F \".\" \'{print $11\".\"$12}\'|awk -F \" \" \'{print $3\" \"$1}\'|awk -F \"=\" \'{print $2}\'|awk -F \"ms \" \'{print $1\" \"$2}\'|awk \'{s[$2] += $1; b[$2]++;max[$2]=max[$2]>$1?max[$2]:$1}END{ for(i in s){  print max[i], s[i]/b[i], b[i], i} }\'|awk -F \" \" \'{print $1\"ms \"int($2)\"ms \"$3\" \"$4}\'|sort -nr'
         cmd[
-            'spiCmd'] = 'grep \"#ConsumerLog#\" /log/wms/wms%s.log|awk -F \" \" \'{print $8\" \"$10}\'|awk -F \"ms \" \'{print $1}\'|awk -F \" \" \'{print $2\" \"$1}\'|awk \'{s[$2] += $1; b[$2]++;max[$2]=max[$2]>$1?max[$2]:$1}END{ for(i in s){  print max[i], s[i]/b[i], b[i], i} }\'|awk -F \" \" \'{print $1\" \"int($2)\"ms \"$3\" \"$4}\'|sort -nr'
+            'spiCmd'] = 'grep \"#ConsumerLog#\" /log/canvas/canvas%s.log|awk -F \" \" \'{print $8\" \"$10}\'|awk -F \"ms \" \'{print $1}\'|awk -F \" \" \'{print $2\" \"$1}\'|awk \'{s[$2] += $1; b[$2]++;max[$2]=max[$2]>$1?max[$2]:$1}END{ for(i in s){  print max[i], s[i]/b[i], b[i], i} }\'|awk -F \" \" \'{print $1\" \"int($2)\"ms \"$3\" \"$4}\'|sort -nr'
         return cmd
 
     def getCmd(self, key):

@@ -29,7 +29,7 @@ def getPassword():
 
 # 本地文件路径
 def getFilePath():
-    return "/Users/a11/Oneplus/wms/wms-web/target/wms-web.war"
+    return "/Users/a11/lzbruby/canvas/canvas-web/target/canvas-web.war"
 
 
 # 上传目录路径
@@ -66,15 +66,15 @@ def scpWar():
 # 执行解压
 def getCommands():
     commands = []
-    commands.append("chmod 777 /data/www/wms-web.war")
-    commands.append("rm -rf /data/www/wms*bank")
-    commands.append("mv /data/www/wms /data/www/wms" + getDateTime() + "bank")
-    commands.append("mkdir /data/www/wms")
-    commands.append("mv /data/www/wms-web.war /data/www/wms")
-    commands.append("unzip /data/www/wms/wms-web.war -d /data/www/wms")
-    commands.append("rm -rf /data/www/wms/wms-web.war")
-    commands.append("/opt/tomcat-wms-8580/bin/shutdown.sh")
-    commands.append("/opt/tomcat-wms-8580/bin/startup.sh")
+    commands.append("chmod 777 /data/www/canvas-web.war")
+    commands.append("rm -rf /data/www/canvas*bank")
+    commands.append("mv /data/www/canvas /data/www/canvas" + getDateTime() + "bank")
+    commands.append("mkdir /data/www/canvas")
+    commands.append("mv /data/www/canvas-web.war /data/www/canvas")
+    commands.append("unzip /data/www/canvas/canvas-web.war -d /data/www/canvas")
+    commands.append("rm -rf /data/www/canvas/canvas-web.war")
+    commands.append("/opt/tomcat-canvas-8580/bin/shutdown.sh")
+    commands.append("/opt/tomcat-canvas-8580/bin/startup.sh")
     return commands
 
 
@@ -147,7 +147,7 @@ def start():
         time.sleep(5)
     if execute(user, ip, password, str(commands[8])) == 1:
         return
-    print "all deploy and restart wms finish!"
+    print "all deploy and restart canvas finish!"
 
 
 if __name__ == '__main__':

@@ -96,9 +96,9 @@ def execute():
     # os.popen(getShell())
     os.system(getShell())
     dateStr = strftime('%Y%m%d%H%M', localtime())
-    totalWarFilePath = projectPath + "wms" + version + dateStr + ".war"
-    shotWarName = "wms" + version + dateStr + ".war"
-    os.system("mv " + projectPath + "wms-web.war " + totalWarFilePath)
+    totalWarFilePath = projectPath + "canvas" + version + dateStr + ".war"
+    shotWarName = "canvas" + version + dateStr + ".war"
+    os.system("mv " + projectPath + "canvas-web.war " + totalWarFilePath)
 
     blockSize = 1024 * 1024
     size = os.path.getsize(totalWarFilePath)
@@ -120,8 +120,8 @@ def execute():
     outs += 'SHA1: ' + sha1.upper() + '\n'
     outs += 'CRC32: ' + str((crc32 & 0xffffffff)) + '\n\n\n'
 
-    totalMD5FilePath = projectPath + "wms" + version + dateStr + ".MD5"
-    shotMD5Name = "wms" + version + dateStr + ".MD5"
+    totalMD5FilePath = projectPath + "canvas" + version + dateStr + ".MD5"
+    shotMD5Name = "canvas" + version + dateStr + ".MD5"
     fo = open(totalMD5FilePath, "wb")
     fo.write(outs);
     fo.close()
@@ -132,9 +132,9 @@ def execute():
     config = UploadConfig("172.21.106.251", "dev", "dev2014@plus")
     ftp = Ftp(config.host, config.userName, config.passWord)
     print "uploading %s..." % shotMD5Name
-    ftp.upload(shotMD5Name, "/wms")
+    ftp.upload(shotMD5Name, "/canvas")
     print "uploading %s..." % shotWarName
-    ftp.upload(shotWarName, "/wms")
+    ftp.upload(shotWarName, "/canvas")
     ftp.quit()
 
     os.system("rm -rf " + totalWarFilePath)
